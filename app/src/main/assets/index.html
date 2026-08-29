@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<title>TradeSim</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #08111f;
+    color: #f5f7fa;
+    min-height: 100vh;
+}
+
+.app {
+    max-width: 600px;
+    margin: auto;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+/* HEADER */
+.header {
+    padding: 20px;
+    background: #0d1728;
+    border-bottom: 1px solid #24344d;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand h1 {
+    font-size: 25px;
+}
+
+.brand span {
+    color: #35d07f;
+}
+
+.market-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #35d07f;
+}
+
+/* CONTENT */
+.content {
+    padding: 18px;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.title {
+    font-size: 23px;
+    margin-bottom: 15px;
+}
+
+/* BALANCE CARD */
+.balance-card {
+    background: linear-gradient(135deg, #142a49, #0e5a55);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.balance-label {
+    font-size: 13px;
+    opacity: .8;
+}
+
+.balance {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.pnl {
+    color: #35d07f;
+    font-weight: bold;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.card {
+    background: #111d30;
+    border: 1px solid #24344d;
+    border-radius: 15px;
+    padding: 16px;
+}
+
+.card-title {
+    color: #91a3bc;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.card-value {
+    font-size: 19px;
+    font-weight: bold;
+}
+
+/* SECTION */
+.section {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section h2 {
+    font-size: 18px;
+}
+
+/* ASSET */
+.asset {
+    background: #111d30;
+    border: 1px solid #24344d;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.asset-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.symbol {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.asset-name {
+    color: #91a3bc;
+    font-size: 12px;
+}
+
+.price {
+    text-align: right;
+}
+
+.price-value {
+    font-weight: bold;
+}
+
+.up {
+    color: #35d07f;
+    font-size: 12px;
+}
+
+.down {
+    color: #ff5964;
+    font-size: 12px;
+}
+
+/* BUTTONS */
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.buy {
+    background: #35d07f;
+    color: #06120b;
+}
+
+.sell {
+    background: #ff5964;
+    color: white;
+}
+
+.primary {
+    background: #258cff;
+    color: white;
+    width: 100%;
+}
+
+/* SEARCH */
+.search {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #2b3d58;
+    background: #111d30;
+    color: white;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+/* NAVIGATION */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    height: 70px;
+    background: #0d1728;
+    border-top: 1px solid #24344d;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 20;
+}
+
+.nav-btn {
+    background: transparent;
+    color: #8191a8;
+    padding: 7px;
+    font-size: 11px;
+}
+
+.nav-btn.active {
+    color: #35d07f;
+}
+
+.nav-icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 3px;
+}
+
+/* NOTICE */
+.notice {
+    background: #17263b;
+    border-left: 4px solid #258cff;
+    padding: 13px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    color: #b9c7d9;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* EMPTY */
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #71829a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+    <div class="brand">
+        <h1>📈 <span>Trade</span>Sim</h1>
+        <div>₹</div>
+    </div>
+    <div class="market-status">● DEMO MARKET DATA</div>
+</header>
+
+<main class="content">
+
+<!-- HOME -->
+<section id="home" class="page active">
+
+    <h2 class="title">Trading Dashboard</h2>
+
+    <div class="notice">
+        🎓 <b>Paper Trading Only</b><br>
+        This is an educational simulation. No real money is involved.
+    </div>
+
+    <div class="balance-card">
+        <div class="balance-label">PORTFOLIO VALUE</div>
+        <div class="balance" id="portfolioValue">₹10,00,000</div>
+        <div class="pnl" id="totalPnl">+₹0 (0.00%)</div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-title">AVAILABLE CASH</div>
+            <div class="card-value" id="cashValue">₹10,00,000</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">TODAY'S P/L</div>
+            <div class="card-value pnl">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">TOTAL TRADES</div>
+            <div class="card-value" id="tradeCount">0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">WIN RATE</div>
+            <div class="card-value">—</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔥 Watchlist</h2>
+    </div>
+
+    <div id="watchlist"></div>
+
+</section>
+
+
+<!-- MARKETS -->
+<section id="markets" class="page">
+
+    <h2 class="title">Markets</h2>
+
+    <input
+        class="search"
+        id="searchBox"
+        type="text"
+        placeholder="Search stocks or crypto..."
+        oninput="filterMarkets()"
+    >
+
+    <div class="section">
+        <h2>🇮🇳 Stocks</h2>
+    </div>
+
+    <div id="stockList"></div>
+
+    <div class="section">
+        <h2>₿ Crypto</h2>
+    </div>
+
+    <div id="cryptoList"></div>
+
+</section>
+
+
+<!-- PORTFOLIO -->
+<section id="portfolio" class="page">
+
+    <h2 class="title">Portfolio</h2>
+
+    <div class="balance-card">
+        <div class="balance-label">CURRENT VALUE</div>
+        <div class="balance" id="portfolioValue2">₹10,00,000</div>
+        <div class="pnl">Paper Account</div>
+    </div>
+
+    <div id="positions">
+        <div class="empty">
+            No open positions yet.<br><br>
+            Go to Markets and place a paper trade.
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ORDERS -->
+<section id="orders" class="page">
+
+    <h2 class="title">Orders</h2>
+
+    <div class="notice">
+        Orders placed here are simulated only. They cannot affect real markets.
+    </div>
+
+    <div id="orderHistory">
+        <div class="empty">
+            No orders yet.
+        </div>
+    </div>
+
+</section>
+
+
+<!-- PROFILE -->
+<section id="profile" class="page">
+
+    <h2 class="title">Trading Coach</h2>
+
+    <div class="card">
+        <h3>🧠 Your Trading Coach</h3>
+        <br>
+        <p style="color:#91a3bc; line-height:1.6;">
+            TradeSim will analyze your paper trades and help you
+            understand risk, position sizing, stop-loss discipline,
+            risk/reward ratio and emotional trading mistakes.
+        </p>
+    </div>
+
+    <br>
+
+    <div class="card">
+        <h3>⚠️ Risk Rules</h3>
+        <br>
+        <p style="color:#91a3bc; line-height:1.8;">
+            • Avoid concentrating your whole portfolio in one asset.<br>
+            • Define risk before entering a trade.<br>
+            • Avoid chasing sudden price movements.<br>
+            • Don't revenge trade after a loss.<br>
+            • Always understand your exit plan.
+        </p>
+    </div>
+
+    <br>
+
+    <div class="notice">
+        TradeSim provides educational feedback and does not provide
+        guaranteed investment advice or profit predictions.
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+
+    <button class="nav-btn active" onclick="showPage('home',this)">
+        <span class="nav-icon">🏠</span>
+        Home
+    </button>
+
+    <button class="nav-btn" onclick="showPage('markets',this)">
+        <span class="nav-icon">📊</span>
+        Markets
+    </button>
+
+    <button class="nav-btn" onclick="showPage('portfolio',this)">
+        <span class="nav-icon">💼</span>
+        Portfolio
+    </button>
+
+    <button class="nav-btn" onclick="showPage('orders',this)">
+        <span class="nav-icon">📋</span>
+        Orders
+    </button>
+
+    <button class="nav-btn" onclick="showPage('profile',this)">
+        <span class="nav-icon">🧠</span>
+        Coach
+    </button>
+
+</nav>
+
+</div>
+
+
+<script>
+
+const state = {
+    cash: 1000000,
+    positions: {},
+    orders: [],
+    trades: []
+};
+
+const stocks = [
+    {symbol:"RELIANCE", name:"Reliance Industries", price:1450.50, change:1.24},
+    {symbol:"TCS", name:"Tata Consultancy Services", price:3245.20, change:0.82},
+    {symbol:"INFY", name:"Infosys", price:1542.30, change:-0.45},
+    {symbol:"HDFCBANK", name:"HDFC Bank", price:1710.40, change:0.64},
+    {symbol:"ICICIBANK", name:"ICICI Bank", price:1315.80, change:1.05},
+    {symbol:"SBIN", name:"State Bank of India", price:825.40, change:-0.32},
+    {symbol:"ITC", name:"ITC Limited", price:418.75, change:0.38},
+    {symbol:"BHARTIARTL", name:"Bharti Airtel", price:1865.10, change:1.62}
+];
+
+const crypto = [
+    {symbol:"BTC", name:"Bitcoin", price:10450000
