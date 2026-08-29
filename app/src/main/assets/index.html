@@ -8,37 +8,68 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+
 body{
 font-family:Arial,sans-serif;
 background:#08111f;
 color:#f5f7fa;
 min-height:100vh
 }
-.app{max-width:600px;margin:auto;min-height:100vh;padding-bottom:85px}
-.header{
-padding:18px;
-background:#0d1728;
-border-bottom:1px solid #24344d;
-position:sticky;top:0;z-index:10
+
+button,input,select{font:inherit}
+
+button{cursor:pointer}
+
+.app{
+max-width:650px;
+margin:auto;
+min-height:100vh;
+padding-bottom:82px
 }
-.brand{display:flex;justify-content:space-between;align-items:center}
+
+.header{
+position:sticky;
+top:0;
+z-index:20;
+padding:16px 18px;
+background:#0d1728;
+border-bottom:1px solid #24344d
+}
+
+.brand{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
 .brand h1{font-size:25px}
 .brand span{color:#35d07f}
-.market-status{margin-top:8px;color:#35d07f;font-size:12px}
+
+.status{
+font-size:11px;
+color:#35d07f;
+margin-top:6px
+}
 
 .content{padding:18px}
+
 .page{display:none}
 .page.active{display:block}
-.title{font-size:25px;margin-bottom:16px}
+
+.title{
+font-size:24px;
+margin-bottom:16px
+}
 
 .notice{
 background:#17263b;
 border-left:4px solid #258cff;
-padding:14px;
-border-radius:12px;
-margin-bottom:16px;
-color:#c4d0df;
-line-height:1.5
+padding:13px;
+border-radius:11px;
+margin-bottom:15px;
+color:#c5d1df;
+line-height:1.5;
+font-size:13px
 }
 
 .balance-card{
@@ -47,114 +78,164 @@ border-radius:18px;
 padding:20px;
 margin-bottom:16px
 }
-.balance-label{font-size:13px;opacity:.8}
-.balance{font-size:30px;font-weight:bold;margin:8px 0}
-.pnl{color:#35d07f;font-weight:bold}
+
+.balance-label{
+font-size:12px;
+opacity:.8
+}
+
+.balance{
+font-size:30px;
+font-weight:bold;
+margin:8px 0
+}
+
+.pnl{color:#35d07f}
+.loss{color:#ff5964}
 
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:12px;
+gap:11px;
 margin-bottom:20px
 }
+
 .card{
-background:#111d30;
-border:1px solid #24344d;
-border-radius:15px;
-padding:16px
-}
-.card-title{color:#91a3bc;font-size:12px;margin-bottom:7px}
-.card-value{font-size:19px;font-weight:bold}
-
-.section{
-margin:20px 0 10px;
-display:flex;
-justify-content:space-between;
-align-items:center
-}
-
-.asset{
 background:#111d30;
 border:1px solid #24344d;
 border-radius:15px;
 padding:15px;
 margin-bottom:10px
 }
+
+.card-title{
+color:#91a3bc;
+font-size:11px;
+margin-bottom:7px
+}
+
+.card-value{
+font-size:18px;
+font-weight:bold
+}
+
+.section{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin:20px 0 10px
+}
+
+.section h2{font-size:18px}
+
+.search{
+width:100%;
+padding:13px;
+background:#111d30;
+border:1px solid #2b3d58;
+border-radius:11px;
+color:white;
+outline:none;
+margin-bottom:10px
+}
+
+.filters{
+display:flex;
+gap:7px;
+overflow-x:auto;
+margin-bottom:14px
+}
+
+.filter{
+white-space:nowrap;
+padding:9px 13px;
+background:#111d30;
+color:#91a3bc;
+border:1px solid #2b3d58;
+border-radius:20px
+}
+
+.filter.active{
+background:#258cff;
+color:white
+}
+
+.asset{
+background:#111d30;
+border:1px solid #24344d;
+border-radius:15px;
+padding:14px;
+margin-bottom:10px
+}
+
 .asset-top{
 display:flex;
 justify-content:space-between;
-align-items:center
+gap:10px
 }
-.symbol{font-weight:bold;font-size:17px}
-.asset-name{color:#91a3bc;font-size:12px;margin-top:5px}
-.price{text-align:right}
-.price-value{font-weight:bold}
-.up{color:#35d07f;font-size:12px}
-.down{color:#ff5964;font-size:12px}
 
-.trade-row{
+.symbol{
+font-size:17px;
+font-weight:bold
+}
+
+.asset-name{
+font-size:11px;
+color:#91a3bc;
+margin-top:4px
+}
+
+.price{
+text-align:right
+}
+
+.price-value{
+font-weight:bold
+}
+
+.change{
+font-size:12px;
+margin-top:4px
+}
+
+.trade-buttons{
 display:flex;
 gap:8px;
 margin-top:12px
 }
-button{
+
+.buy,.sell{
+flex:1;
 border:0;
-border-radius:10px;
-padding:11px 15px;
-font-weight:bold;
-cursor:pointer
-}
-.buy{background:#35d07f;color:#06120b;flex:1}
-.sell{background:#ff5964;color:white;flex:1}
-.primary{background:#258cff;color:white;width:100%}
-
-.search{
-width:100%;
-padding:14px;
-border-radius:12px;
-border:1px solid #2b3d58;
-background:#111d30;
-color:white;
-margin-bottom:15px;
-outline:none
+padding:11px;
+border-radius:9px;
+font-weight:bold
 }
 
-.qty{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:10px;
-border:1px solid #2b3d58;
-background:#0d1728;
+.buy{
+background:#35d07f;
+color:#06120b
+}
+
+.sell{
+background:#ff5964;
 color:white
 }
 
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
+.primary{
 width:100%;
-max-width:600px;
-height:72px;
-background:#0d1728;
-border-top:1px solid #24344d;
-display:flex;
-justify-content:space-around;
-align-items:center;
-z-index:20
+background:#258cff;
+color:white;
+border:0;
+padding:13px;
+border-radius:10px;
+font-weight:bold
 }
-.nav-btn{
-background:transparent;
-color:#8191a8;
-padding:6px;
-font-size:11px
-}
-.nav-btn.active{color:#35d07f}
-.nav-icon{
-display:block;
-font-size:20px;
-margin-bottom:3px
+
+.small{
+font-size:12px;
+color:#91a3bc;
+line-height:1.6
 }
 
 .empty{
@@ -171,8 +252,116 @@ padding:14px;
 margin-bottom:10px
 }
 
-.profit{color:#35d07f}
-.loss{color:#ff5964}
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.input{
+width:100%;
+padding:12px;
+margin-top:7px;
+background:#0d1728;
+border:1px solid #2b3d58;
+border-radius:9px;
+color:white;
+outline:none
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.75);
+display:none;
+align-items:flex-end;
+justify-content:center;
+z-index:50
+}
+
+.modal.show{display:flex}
+
+.modal-box{
+width:100%;
+max-width:650px;
+max-height:92vh;
+overflow:auto;
+background:#0d1728;
+border-radius:20px 20px 0 0;
+padding:20px
+}
+
+.close{
+float:right;
+background:#24344d;
+color:white;
+border:0;
+border-radius:50%;
+width:35px;
+height:35px
+}
+
+.chart{
+width:100%;
+height:220px;
+background:#08111f;
+border:1px solid #24344d;
+border-radius:13px;
+margin:15px 0;
+padding:5px
+}
+
+.timeframes{
+display:flex;
+gap:7px;
+margin-bottom:15px
+}
+
+.timeframes button{
+flex:1;
+padding:9px;
+background:#111d30;
+color:#91a3bc;
+border:1px solid #2b3d58;
+border-radius:8px
+}
+
+.timeframes button.active{
+background:#258cff;
+color:white
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:100%;
+max-width:650px;
+height:72px;
+background:#0d1728;
+border-top:1px solid #24344d;
+display:flex;
+justify-content:space-around;
+align-items:center;
+z-index:30
+}
+
+.nav-btn{
+background:transparent;
+border:0;
+color:#8191a8;
+font-size:11px;
+padding:6px
+}
+
+.nav-btn.active{color:#35d07f}
+
+.nav-icon{
+display:block;
+font-size:20px;
+margin-bottom:3px
+}
 
 .coach{
 background:#111d30;
@@ -180,10 +369,17 @@ border:1px solid #24344d;
 border-radius:15px;
 padding:16px;
 margin-bottom:12px;
-line-height:1.7
+line-height:1.6
 }
 
-.small{font-size:12px;color:#91a3bc}
+.badge{
+display:inline-block;
+padding:4px 8px;
+border-radius:10px;
+font-size:10px;
+background:#17263b;
+margin-top:5px
+}
 </style>
 </head>
 
@@ -196,7 +392,7 @@ line-height:1.7
 <h1>📈 <span>Trade</span>Sim</h1>
 <div>₹</div>
 </div>
-<div class="market-status">● SIMULATED MARKET</div>
+<div class="status">● SIMULATED MARKET • EDUCATIONAL MODE</div>
 </header>
 
 <main class="content">
@@ -208,13 +404,13 @@ line-height:1.7
 
 <div class="notice">
 🎓 <b>Paper Trading Only</b><br>
-This is an educational simulation. No real money is involved.
+You are using virtual money. No real orders are sent to any exchange or broker.
 </div>
 
 <div class="balance-card">
 <div class="balance-label">PORTFOLIO VALUE</div>
 <div class="balance" id="portfolioValue">₹10,00,000</div>
-<div class="pnl" id="totalPnl">+₹0 (0.00%)</div>
+<div id="totalPnl" class="pnl">+₹0 (0.00%)</div>
 </div>
 
 <div class="grid">
@@ -225,12 +421,12 @@ This is an educational simulation. No real money is involved.
 </div>
 
 <div class="card">
-<div class="card-title">TODAY'S P/L</div>
-<div class="card-value" id="todayPnl">₹0</div>
+<div class="card-title">TOTAL P/L</div>
+<div class="card-value" id="homePnl">₹0</div>
 </div>
 
 <div class="card">
-<div class="card-title">TOTAL TRADES</div>
+<div class="card-title">TOTAL ORDERS</div>
 <div class="card-value" id="tradeCount">0</div>
 </div>
 
@@ -256,22 +452,31 @@ This is an educational simulation. No real money is involved.
 <h2 class="title">Markets</h2>
 
 <input
-class="search"
 id="searchBox"
-placeholder="Search stocks or crypto..."
-oninput="filterMarkets()">
+class="search"
+placeholder="🔎 Search stock or crypto..."
+oninput="renderMarkets()">
 
-<div class="section">
-<h2>🇮🇳 Stocks</h2>
+<div class="filters">
+
+<button class="filter active" id="allFilter"
+onclick="setFilter('ALL',this)">All</button>
+
+<button class="filter"
+onclick="setFilter('STOCK',this)">Stocks</button>
+
+<button class="filter"
+onclick="setFilter('CRYPTO',this)">Crypto</button>
+
+<button class="filter"
+onclick="setFilter('GAINERS',this)">Gainers</button>
+
+<button class="filter"
+onclick="setFilter('LOSERS',this)">Losers</button>
+
 </div>
 
-<div id="stockList"></div>
-
-<div class="section">
-<h2>₿ Crypto</h2>
-</div>
-
-<div id="cryptoList"></div>
+<div id="marketList"></div>
 
 </section>
 
@@ -282,9 +487,9 @@ oninput="filterMarkets()">
 <h2 class="title">Portfolio</h2>
 
 <div class="balance-card">
-<div class="balance-label">CURRENT VALUE</div>
+<div class="balance-label">CURRENT PORTFOLIO VALUE</div>
 <div class="balance" id="portfolioValue2">₹10,00,000</div>
-<div class="pnl" id="portfolioPnl">₹0</div>
+<div id="portfolioPnl">P/L: ₹0</div>
 </div>
 
 <div id="positions"></div>
@@ -295,11 +500,7 @@ oninput="filterMarkets()">
 <!-- ORDERS -->
 <section id="orders" class="page">
 
-<h2 class="title">Orders</h2>
-
-<div class="notice">
-📋 All trades shown here are simulated paper trades.
-</div>
+<h2 class="title">Orders & Trades</h2>
 
 <div id="orderHistory"></div>
 
@@ -309,28 +510,44 @@ oninput="filterMarkets()">
 <!-- COACH -->
 <section id="profile" class="page">
 
-<h2 class="title">Trading Coach</h2>
+<h2 class="title">Trading Coach 🧠</h2>
 
 <div class="coach">
-<h3>🧠 Your Trading Coach</h3>
+
+<h3>Trading discipline</h3>
+
 <br>
+
 <div id="coachMessage">
-Start trading to receive feedback about your trading behaviour.
+Start trading to receive personalized educational feedback.
 </div>
+
 </div>
 
 <div class="coach">
-<h3>⚠️ Risk Rules</h3>
+
+<h3>⚠️ Risk checklist</h3>
+
 <br>
-• Don't risk your entire account on one trade.<br>
-• Define your exit before entering.<br>
-• Avoid chasing sudden moves.<br>
+
+<div class="small">
+
+• Decide your maximum acceptable loss before entering.<br>
+• Avoid using your complete account on one position.<br>
+• Don't chase a rapidly moving price.<br>
 • Don't revenge trade after a loss.<br>
-• Keep position sizes under control.
+• Consider stop-loss and position size together.<br>
+• Review your trades instead of focusing only on profit.
+
+</div>
+
 </div>
 
 <div class="notice">
-TradeSim provides educational feedback only. It does not guarantee profits or provide investment advice.
+
+TradeSim is a paper-trading simulator for education.
+It does not guarantee profits and is not investment advice.
+
 </div>
 
 </section>
@@ -338,32 +555,27 @@ TradeSim provides educational feedback only. It does not guarantee profits or pr
 </main>
 
 
-<!-- NAVIGATION -->
+<!-- NAV -->
 <nav class="bottom-nav">
 
 <button class="nav-btn active" onclick="showPage('home',this)">
-<span class="nav-icon">🏠</span>
-Home
+<span class="nav-icon">🏠</span>Home
 </button>
 
 <button class="nav-btn" onclick="showPage('markets',this)">
-<span class="nav-icon">📊</span>
-Markets
+<span class="nav-icon">📊</span>Markets
 </button>
 
 <button class="nav-btn" onclick="showPage('portfolio',this)">
-<span class="nav-icon">💼</span>
-Portfolio
+<span class="nav-icon">💼</span>Portfolio
 </button>
 
 <button class="nav-btn" onclick="showPage('orders',this)">
-<span class="nav-icon">📋</span>
-Orders
+<span class="nav-icon">📋</span>Orders
 </button>
 
 <button class="nav-btn" onclick="showPage('profile',this)">
-<span class="nav-icon">🧠</span>
-Coach
+<span class="nav-icon">🧠</span>Coach
 </button>
 
 </nav>
@@ -371,325 +583,520 @@ Coach
 </div>
 
 
+<!-- TRADE MODAL -->
+
+<div id="tradeModal" class="modal">
+
+<div class="modal-box">
+
+<button class="close" onclick="closeTrade()">×</button>
+
+<h2 id="tradeTitle">Trade</h2>
+
+<br>
+
+<div class="small" id="tradePrice"></div>
+
+<label>Quantity</label>
+<input id="tradeQty" class="input" type="number" min="0.000001" step="any">
+
+<label>Stop-loss price</label>
+<input id="stopLoss" class="input" type="number" min="0" step="any">
+
+<label>Target price</label>
+<input id="targetPrice" class="input" type="number" min="0" step="any">
+
+<br>
+
+<div class="notice">
+💡 The simulator will check your order size and provide educational risk feedback before execution.
+</div>
+
+<button id="executeTrade" class="primary">
+Execute Paper Trade
+</button>
+
+</div>
+</div>
+
+
+<!-- CHART MODAL -->
+
+<div id="chartModal" class="modal">
+
+<div class="modal-box">
+
+<button class="close" onclick="closeChart()">×</button>
+
+<h2 id="chartTitle">Chart</h2>
+
+<div id="chartCurrent" class="small"></div>
+
+<div class="timeframes">
+
+<button class="active" onclick="changeChart(24,this)">1D</button>
+<button onclick="changeChart(48,this)">1W</button>
+<button onclick="changeChart(90,this)">1M</button>
+
+</div>
+
+<canvas id="priceChart" class="chart"></canvas>
+
+</div>
+</div>
+
+
 <script>
 
-const STARTING_CASH = 1000000;
+const STARTING_CASH=1000000;
 
-let state = JSON.parse(localStorage.getItem("tradesim_state")) || {
-cash: STARTING_CASH,
-positions: {},
-orders: [],
-trades: []
+const assets=[
+{symbol:"RELIANCE",name:"Reliance Industries",type:"STOCK",price:1450.50,change:1.24},
+{symbol:"TCS",name:"Tata Consultancy Services",type:"STOCK",price:3245.20,change:0.82},
+{symbol:"INFY",name:"Infosys",type:"STOCK",price:1542.30,change:-0.45},
+{symbol:"HDFCBANK",name:"HDFC Bank",type:"STOCK",price:1710.40,change:0.64},
+{symbol:"ICICIBANK",name:"ICICI Bank",type:"STOCK",price:1315.80,change:1.05},
+{symbol:"SBIN",name:"State Bank of India",type:"STOCK",price:825.40,change:-0.32},
+{symbol:"ITC",name:"ITC Limited",type:"STOCK",price:418.75,change:0.38},
+{symbol:"BHARTIARTL",name:"Bharti Airtel",type:"STOCK",price:1865.10,change:1.62},
+{symbol:"BTC",name:"Bitcoin",type:"CRYPTO",price:10450000,change:1.15},
+{symbol:"ETH",name:"Ethereum",type:"CRYPTO",price:395000,change:0.72},
+{symbol:"SOL",name:"Solana",type:"CRYPTO",price:18500,change:-1.20},
+{symbol:"BNB",name:"BNB",type:"CRYPTO",price:87000,change:0.55}
+];
+
+
+let state=JSON.parse(localStorage.getItem("tradesim_state"))||{
+cash:STARTING_CASH,
+positions:{},
+orders:[],
+trades:[]
 };
 
-
-const stocks = [
-{symbol:"RELIANCE",name:"Reliance Industries",price:1450.50,change:1.24},
-{symbol:"TCS",name:"Tata Consultancy Services",price:3245.20,change:0.82},
-{symbol:"INFY",name:"Infosys",price:1542.30,change:-0.45},
-{symbol:"HDFCBANK",name:"HDFC Bank",price:1710.40,change:0.64},
-{symbol:"ICICIBANK",name:"ICICI Bank",price:1315.80,change:1.05},
-{symbol:"SBIN",name:"State Bank of India",price:825.40,change:-0.32},
-{symbol:"ITC",name:"ITC Limited",price:418.75,change:0.38},
-{symbol:"BHARTIARTL",name:"Bharti Airtel",price:1865.10,change:1.62}
-];
-
-const crypto = [
-{symbol:"BTC",name:"Bitcoin",price:10450000,change:1.15},
-{symbol:"ETH",name:"Ethereum",price:395000,change:0.72},
-{symbol:"SOL",name:"Solana",price:18500,change:-1.20},
-{symbol:"BNB",name:"BNB",price:87000,change:0.55}
-];
-
-
-function allAssets(){
-return stocks.concat(crypto);
-}
+let currentFilter="ALL";
+let currentAsset=null;
+let chartPoints=24;
 
 
 function money(n){
+
 return "₹"+Number(n).toLocaleString("en-IN",{
 maximumFractionDigits:2
 });
+
 }
 
 
 function save(){
-localStorage.setItem("tradesim_state",JSON.stringify(state));
+
+localStorage.setItem(
+"tradesim_state",
+JSON.stringify(state)
+);
+
 }
 
 
 function getAsset(symbol){
-return allAssets().find(x=>x.symbol===symbol);
+
+return assets.find(a=>a.symbol===symbol);
+
 }
 
 
 function showPage(id,button){
 
-document.querySelectorAll(".page").forEach(p=>{
-p.classList.remove("active");
-});
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
 
-document.getElementById(id).classList.add("active");
+document.getElementById(id)
+.classList.add("active");
 
-document.querySelectorAll(".nav-btn").forEach(b=>{
-b.classList.remove("active");
-});
+document.querySelectorAll(".nav-btn")
+.forEach(b=>b.classList.remove("active"));
 
 button.classList.add("active");
 
 render();
+
+}
+
+
+function setFilter(filter,button){
+
+currentFilter=filter;
+
+document.querySelectorAll(".filter")
+.forEach(b=>b.classList.remove("active"));
+
+button.classList.add("active");
+
+renderMarkets();
+
 }
 
 
 function assetHTML(a){
 
-let changeClass=a.change>=0?"up":"down";
+const cls=a.change>=0?"pnl":"loss";
 
 return `
+
 <div class="asset">
 
 <div class="asset-top">
 
 <div>
+
 <div class="symbol">${a.symbol}</div>
-<div class="asset-name">${a.name}</div>
+
+<div class="asset-name">
+${a.name} • ${a.type}
+</div>
+
 </div>
 
 <div class="price">
-<div class="price-value">${money(a.price)}</div>
-<div class="${changeClass}">
+
+<div class="price-value">
+${money(a.price)}
+</div>
+
+<div class="change ${cls}">
 ${a.change>=0?"+":""}${a.change.toFixed(2)}%
 </div>
-</div>
 
 </div>
 
-<div class="trade-row">
+</div>
 
-<button class="buy" onclick="trade('${a.symbol}','BUY')">
+<div class="trade-buttons">
+
+<button class="buy"
+onclick="openTrade('${a.symbol}','BUY')">
 BUY
 </button>
 
-<button class="sell" onclick="trade('${a.symbol}','SELL')">
+<button class="sell"
+onclick="openTrade('${a.symbol}','SELL')">
 SELL
+</button>
+
+<button
+class="primary"
+style="width:auto;padding:11px 14px"
+onclick="openChart('${a.symbol}')">
+📈
 </button>
 
 </div>
 
 </div>
+
 `;
+
 }
 
 
 function renderMarkets(){
 
-const search=(document.getElementById("searchBox")?.value||"").toUpperCase();
+let list=[...assets];
 
-const s=stocks.filter(a=>
-a.symbol.includes(search)||a.name.toUpperCase().includes(search)
+const q=(document.getElementById("searchBox")?.value||"")
+.toUpperCase();
+
+if(q){
+
+list=list.filter(a=>
+a.symbol.includes(q)||
+a.name.toUpperCase().includes(q)
 );
 
-const c=crypto.filter(a=>
-a.symbol.includes(search)||a.name.toUpperCase().includes(search)
-);
+}
 
-document.getElementById("stockList").innerHTML=
-s.map(assetHTML).join("") ||
-'<div class="empty">No stocks found.</div>';
+if(currentFilter==="STOCK")
+list=list.filter(a=>a.type==="STOCK");
 
-document.getElementById("cryptoList").innerHTML=
-c.map(assetHTML).join("") ||
-'<div class="empty">No crypto found.</div>';
+if(currentFilter==="CRYPTO")
+list=list.filter(a=>a.type==="CRYPTO");
+
+if(currentFilter==="GAINERS")
+list=list.filter(a=>a.change>0)
+.sort((a,b)=>b.change-a.change);
+
+if(currentFilter==="LOSERS")
+list=list.filter(a=>a.change<0)
+.sort((a,b)=>a.change-b.change);
+
+document.getElementById("marketList").innerHTML=
+list.length
+?list.map(assetHTML).join("")
+:'<div class="empty">No matching instruments.</div>';
+
 }
 
 
-function filterMarkets(){
-renderMarkets();
+function openTrade(symbol,type){
+
+currentAsset=getAsset(symbol);
+
+document.getElementById("tradeTitle").textContent=
+type+" "+symbol;
+
+document.getElementById("tradePrice").textContent=
+"Current price: "+money(currentAsset.price);
+
+document.getElementById("tradeQty").value="";
+
+document.getElementById("stopLoss").value="";
+
+document.getElementById("targetPrice").value="";
+
+document.getElementById("executeTrade").onclick=
+()=>executeTrade(type);
+
+document.getElementById("tradeModal")
+.classList.add("show");
+
 }
 
 
-function trade(symbol,type){
+function closeTrade(){
 
-const asset=getAsset(symbol);
+document.getElementById("tradeModal")
+.classList.remove("show");
 
-if(!asset)return;
+}
 
-let qty=prompt(
-`${type} ${symbol}\nCurrent price: ${money(asset.price)}\n\nEnter quantity:`
+
+function executeTrade(type){
+
+if(!currentAsset)return;
+
+let qty=parseFloat(
+document.getElementById("tradeQty").value
 );
 
-if(qty===null)return;
+const stop=parseFloat(
+document.getElementById("stopLoss").value
+);
 
-qty=parseFloat(qty);
+const target=parseFloat(
+document.getElementById("targetPrice").value
+);
 
 if(!Number.isFinite(qty)||qty<=0){
-alert("Please enter a valid quantity.");
+
+alert("❌ Enter a valid quantity.");
+
 return;
+
 }
 
-const value=asset.price*qty;
+const price=currentAsset.price;
+const value=price*qty;
 
 if(type==="BUY"){
 
 if(value>state.cash){
+
 alert(
 "❌ Insufficient virtual cash.\n\n"+
-"Required: "+money(value)+"\n"+
-"Available: "+money(state.cash)
+"Required: "+money(value)+
+"\nAvailable: "+money(state.cash)
 );
+
 return;
+
+}
+
+const risk=value/STARTING_CASH;
+
+if(risk>0.25){
+
+if(!confirm(
+"⚠️ RISK WARNING\n\n"+
+"This order uses more than 25% of your virtual account.\n\n"+
+"Large position concentration can significantly increase losses.\n\n"+
+"Do you still want to continue?"
+))return;
+
 }
 
 state.cash-=value;
 
-if(!state.positions[symbol]){
-state.positions[symbol]={
+if(!state.positions[currentAsset.symbol]){
+
+state.positions[currentAsset.symbol]={
 qty:0,
 avg:0
 };
+
 }
 
-let p=state.positions[symbol];
+const p=state.positions[currentAsset.symbol];
 
-p.avg=((p.avg*p.qty)+(asset.price*qty))/(p.qty+qty);
+p.avg=
+((p.avg*p.qty)+(price*qty))/
+(p.qty+qty);
+
 p.qty+=qty;
 
 }else{
 
-const p=state.positions[symbol];
+const p=state.positions[currentAsset.symbol];
 
-if(!p || p.qty<qty){
-alert("❌ You don't have enough units to sell.");
+if(!p||p.qty<qty){
+
+alert(
+"❌ You cannot sell more than your current holding."
+);
+
 return;
+
 }
 
 state.cash+=value;
+
 p.qty-=qty;
 
 if(p.qty<=0){
-delete state.positions[symbol];
+
+delete state.positions[currentAsset.symbol];
+
 }
 
 }
 
 const order={
 id:Date.now(),
-symbol,
-type,
-qty,
-price:asset.price,
-value,
+symbol:currentAsset.symbol,
+type:type,
+qty:qty,
+price:price,
+value:value,
+stopLoss:Number.isFinite(stop)?stop:null,
+target:Number.isFinite(target)?target:null,
 time:new Date().toLocaleString()
 };
 
 state.orders.unshift(order);
 
 if(type==="SELL"){
+
 state.trades.push(order);
+
 }
 
 save();
 
+closeTrade();
+
 alert(
-"✅ "+type+" order executed\n\n"+
-symbol+" × "+qty+"\n"+
-"Price: "+money(asset.price)+"\n"+
-"Value: "+money(value)
+"✅ Paper trade executed!\n\n"+
+type+" "+currentAsset.symbol+
+"\nQuantity: "+qty+
+"\nPrice: "+money(price)+
+"\nValue: "+money(value)
 );
 
 render();
+
 }
 
 
-function calculatePortfolio(){
+function portfolioValue(){
 
 let total=state.cash;
 
-Object.keys(state.positions).forEach(symbol=>{
+Object.keys(state.positions)
+.forEach(symbol=>{
 
 const p=state.positions[symbol];
 const a=getAsset(symbol);
 
-if(a){
+if(a)
 total+=p.qty*a.price;
-}
 
 });
 
 return total;
+
 }
 
 
-function calculatePnl(){
+function totalPnl(){
 
-return calculatePortfolio()-STARTING_CASH;
+return portfolioValue()-STARTING_CASH;
+
 }
 
 
 function renderHome(){
 
-const value=calculatePortfolio();
-const pnl=calculatePnl();
+const value=portfolioValue();
+const pnl=totalPnl();
 
-document.getElementById("portfolioValue").textContent=money(value);
-document.getElementById("cashValue").textContent=money(state.cash);
+document.getElementById("portfolioValue")
+.textContent=money(value);
+
+document.getElementById("cashValue")
+.textContent=money(state.cash);
+
+document.getElementById("homePnl")
+.textContent=money(pnl);
+
+document.getElementById("tradeCount")
+.textContent=state.orders.length;
 
 const pnlEl=document.getElementById("totalPnl");
 
 pnlEl.textContent=
 (pnl>=0?"+":"")+money(pnl)+
-" ("+((pnl/STARTING_CASH)*100).toFixed(2)+"%)";
+" ("+
+((pnl/STARTING_CASH)*100).toFixed(2)+
+"%)";
 
 pnlEl.className=pnl>=0?"pnl":"loss";
 
-document.getElementById("tradeCount").textContent=
-state.orders.length;
+const wins=state.trades.filter(t=>t.value>0).length;
 
-const wins=state.trades.filter(t=>{
-
-const p=state.positions[t.symbol];
-return p===undefined;
-
-}).length;
-
-if(state.trades.length){
 document.getElementById("winRate").textContent=
-Math.round((wins/state.trades.length)*100)+"%";
-}else{
-document.getElementById("winRate").textContent="—";
-}
-
-document.getElementById("todayPnl").textContent=money(pnl);
+state.trades.length
+?Math.round(wins/state.trades.length*100)+"%"
+:"—";
 
 document.getElementById("watchlist").innerHTML=
-stocks.slice(0,5).map(assetHTML).join("");
+assets.slice(0,5).map(assetHTML).join("");
+
 }
 
 
 function renderPortfolio(){
 
-const value=calculatePortfolio();
+const value=portfolioValue();
+const pnl=value-STARTING_CASH;
 
-document.getElementById("portfolioValue2").textContent=
-money(value);
+document.getElementById("portfolioValue2")
+.textContent=money(value);
 
-document.getElementById("portfolioPnl").textContent=
-"Total P/L: "+money(value-STARTING_CASH);
-
-const box=document.getElementById("positions");
+document.getElementById("portfolioPnl")
+.textContent="P/L: "+money(pnl);
 
 const keys=Object.keys(state.positions);
+
+const box=document.getElementById("positions");
 
 if(!keys.length){
 
 box.innerHTML=
 `<div class="empty">
-No open positions yet.<br><br>
+No open positions.<br><br>
 Go to Markets and place a paper trade.
 </div>`;
 
 return;
+
 }
 
 box.innerHTML=keys.map(symbol=>{
@@ -697,21 +1104,22 @@ box.innerHTML=keys.map(symbol=>{
 const p=state.positions[symbol];
 const a=getAsset(symbol);
 
-const current=a.price*p.qty;
-const invested=p.avg*p.qty;
+const current=p.qty*a.price;
+const invested=p.qty*p.avg;
 const pnl=current-invested;
 
 return `
-<div class="card" style="margin-bottom:10px">
 
-<div class="asset-top">
+<div class="card">
+
+<div class="row">
 
 <div>
 <div class="symbol">${symbol}</div>
 <div class="asset-name">${a.name}</div>
 </div>
 
-<div class="${pnl>=0?"profit":"loss"}">
+<div class="${pnl>=0?"pnl":"loss"}">
 ${money(pnl)}
 </div>
 
@@ -727,9 +1135,11 @@ Market value: ${money(current)}
 </div>
 
 </div>
+
 `;
 
 }).join("");
+
 }
 
 
@@ -743,20 +1153,21 @@ box.innerHTML=
 '<div class="empty">No orders yet.</div>';
 
 return;
+
 }
 
 box.innerHTML=state.orders.map(o=>`
 
 <div class="order">
 
-<div class="asset-top">
+<div class="row">
 
 <div>
 <b>${o.type} ${o.symbol}</b>
 <div class="small">${o.time}</div>
 </div>
 
-<div class="${o.type==="BUY"?"profit":"loss"}">
+<div class="${o.type==="BUY"?"pnl":"loss"}">
 ${o.type}
 </div>
 
@@ -765,42 +1176,197 @@ ${o.type}
 <br>
 
 <div class="small">
+
 Quantity: ${o.qty}<br>
 Price: ${money(o.price)}<br>
-Order value: ${money(o.value)}
+Order value: ${money(o.value)}<br>
+
+${o.stopLoss?
+"Stop-loss: "+money(o.stopLoss)+"<br>":""}
+
+${o.target?
+"Target: "+money(o.target):""}
+
 </div>
 
 </div>
 
 `).join("");
+
 }
 
 
 function renderCoach(){
 
-const trades=state.orders.length;
+const n=state.orders.length;
 
-let message;
+let msg;
 
-if(trades===0){
+if(n===0){
 
-message=
-"👋 No trades yet. Start with a small paper position and define your risk before entering.";
+msg=
+"👋 Start with a small paper trade. Before entering, decide how much you are willing to risk and where you would exit.";
 
-}else if(trades<3){
+}else if(n<3){
 
-message=
-"👍 Good start. Focus on position sizing and always know where you would exit before entering.";
+msg=
+"👍 You're getting started. Focus on position sizing and having an exit plan before increasing your trade size.";
 
 }else{
 
-message=
-"📊 You have completed "+trades+
-" simulated orders. Review your winning and losing trades instead of judging yourself only by profit/loss.";
+const value=portfolioValue();
+
+if(value<STARTING_CASH){
+
+msg=
+"⚠️ Your simulated account is below the starting balance. Review your losing positions and check whether your position sizes were too large.";
+
+}else{
+
+msg=
+"📊 Your account is currently above the starting balance. Continue focusing on consistency, risk/reward and avoiding oversized positions.";
 
 }
 
-document.getElementById("coachMessage").textContent=message;
+}
+
+document.getElementById("coachMessage").textContent=msg;
+
+}
+
+
+function openChart(symbol){
+
+currentAsset=getAsset(symbol);
+
+document.getElementById("chartTitle").textContent=
+currentAsset.symbol+" • "+currentAsset.name;
+
+document.getElementById("chartCurrent").textContent=
+"Current price: "+money(currentAsset.price)+
+" • "+(currentAsset.change>=0?"+":"")+
+currentAsset.change.toFixed(2)+"%";
+
+chartPoints=24;
+
+document.getElementById("chartModal")
+.classList.add("show");
+
+setTimeout(drawChart,50);
+
+}
+
+
+function closeChart(){
+
+document.getElementById("chartModal")
+.classList.remove("show");
+
+}
+
+
+function changeChart(points,button){
+
+chartPoints=points;
+
+document.querySelectorAll(".timeframes button")
+.forEach(b=>b.classList.remove("active"));
+
+button.classList.add("active");
+
+drawChart();
+
+}
+
+
+function drawChart(){
+
+const canvas=document.getElementById("priceChart");
+
+if(!canvas||!currentAsset)return;
+
+const rect=canvas.getBoundingClientRect();
+
+canvas.width=rect.width*devicePixelRatio;
+canvas.height=220*devicePixelRatio;
+
+const ctx=canvas.getContext("2d");
+
+ctx.scale(devicePixelRatio,devicePixelRatio);
+
+const w=rect.width;
+const h=220;
+
+ctx.clearRect(0,0,w,h);
+
+let points=[];
+let price=currentAsset.price;
+
+for(let i=0;i<chartPoints;i++){
+
+price=price*(1+(Math.random()-.5)*.012);
+
+points.push(price);
+
+}
+
+points[points.length-1]=currentAsset.price;
+
+const min=Math.min(...points);
+const max=Math.max(...points);
+
+ctx.beginPath();
+
+points.forEach((p,i)=>{
+
+const x=
+(i/(points.length-1))*w;
+
+const y=
+h-25-
+((p-min)/(max-min||1))*
+(h-45);
+
+if(i===0)
+ctx.moveTo(x,y);
+else
+ctx.lineTo(x,y);
+
+});
+
+ctx.lineWidth=3;
+ctx.strokeStyle="#35d07f";
+ctx.stroke();
+
+ctx.fillStyle="#91a3bc";
+ctx.font="11px Arial";
+
+ctx.fillText(money(max),5,15);
+ctx.fillText(money(min),5,h-5);
+
+}
+
+
+function simulateMarket(){
+
+assets.forEach(a=>{
+
+const movement=(Math.random()-.5)*.008;
+
+a.price*=1+movement;
+a.change=movement*100;
+
+});
+
+render();
+
+if(document.getElementById("chartModal")
+.classList.contains("show")){
+
+drawChart();
+
+}
+
 }
 
 
@@ -811,28 +1377,21 @@ renderMarkets();
 renderPortfolio();
 renderOrders();
 renderCoach();
-}
 
-
-function simulateMarket(){
-
-allAssets().forEach(a=>{
-
-const movement=(Math.random()-0.5)*0.006;
-
-a.price=a.price*(1+movement);
-
-a.change=movement*100;
-
-});
-
-render();
 }
 
 
 render();
 
 setInterval(simulateMarket,5000);
+
+window.addEventListener("resize",()=>{
+
+if(document.getElementById("chartModal")
+.classList.contains("show"))
+drawChart();
+
+});
 
 </script>
 
