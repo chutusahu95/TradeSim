@@ -1,2038 +1,275 @@
-/*
- * TradeSim Application Controller
- * Pro Chart Engine
- *
- * Connects:
- * Market Engine
- * Chart Engine
- * Trading Engine
- * UI
+/* TradeSim TradingView-style application controller
+ * Paper trading only. Uses the existing Market, Trading and Chart engines.
  */
-
 (function () {
-
-    "use strict";
-
-    const TS = window.TradeSimApp = {
-
-        currentPage: "home",
-
-        currentSymbol: null,
-
-        currentInterval: "1m",
-
-        filter: "ALL",
-
-        searchText: "",
-
-
-        /*
-         * Start application
-         */
-
-        init: function () {
-
-            this.registerAssets();
-
-            this.bindEvents();
-
-            this.renderAll();
-
-            this.startMarket();
-
-        },
-
-
-        /*
-         * Register market instruments
-         */
-
-        registerAssets: function () {
-
-            if (!window.TradeSimMarket) {
-
-                console.error(
-                    "TradeSimMarket not loaded."
-                );
-
-                return;
-
-            }
-
-            const assets = [
-
-                {
-                    symbol: "RELIANCE",
-                    name: "Reliance Industries",
-                    type: "STOCK",
-                    price: 1450.50,
-                    change: 1.24
-                },
-
-                {
-                    symbol: "TCS",
-                    name: "Tata Consultancy Services",
-                    type: "STOCK",
-                    price: 3245.20,
-                    change: 0.82
-                },
-
-                {
-                    symbol: "INFY",
-                    name: "Infosys",
-                    type: "STOCK",
-                    price: 1542.30,
-                    change: -0.45
-                },
-
-                {
-                    symbol: "HDFCBANK",
-                    name: "HDFC Bank",
-                    type: "STOCK",
-                    price: 1710.40,
-                    change: 0.64
-                },
-
-                {
-                    symbol: "ICICIBANK",
-                    name: "ICICI Bank",
-                    type: "STOCK",
-                    price: 1315.80,
-                    change: 1.05
-                },
-
-                {
-                    symbol: "SBIN",
-                    name: "State Bank of India",
-                    type: "STOCK",
-                    price: 825.40,
-                    change: -0.32
-                },
-
-                {
-                    symbol: "ITC",
-                    name: "ITC Limited",
-                    type: "STOCK",
-                    price: 418.75,
-                    change: 0.38
-                },
-
-                {
-                    symbol: "BHARTIARTL",
-                    name: "Bharti Airtel",
-                    type: "STOCK",
-                    price: 1865.10,
-                    change: 1.62
-                },
-
-                {
-                    symbol: "BTC",
-                    name: "Bitcoin",
-                    type: "CRYPTO",
-                    price: 10450000,
-                    change: 1.15
-                },
-
-                {
-                    symbol: "ETH",
-                    name: "Ethereum",
-                    type: "CRYPTO",
-                    price: 395000,
-                    change: 0.72
-                },
-
-                {
-                    symbol: "SOL",
-                    name: "Solana",
-                    type: "CRYPTO",
-                    price: 18500,
-                    change: -1.20
-                },
-
-                {
-                    symbol: "BNB",
-                    name: "BNB",
-                    type: "CRYPTO",
-                    price: 87000,
-                    change: 0.55
-                }
-
-            ];
-
-            TradeSimMarket.registerAssets(
-                assets
-            );
-
-        },
-
-
-        /*
-         * Bind UI events
-         */
-
-        bindEvents: function () {
-
-            const search =
-                document.getElementById(
-                    "searchBox"
-                );
-
-            if (search) {
-
-                search.addEventListener(
-                    "input",
-                    () => {
-
-                        this.searchText =
-                            search.value
-                                .trim()
-                                .toUpperCase();
-
-                        this.renderMarkets();
-
-                    }
-                );
-
-            }
-
-
-            /*
-             * Listen for market ticks
-             */
-
-            if (
-                window.TradeSimMarket &&
-                typeof TradeSimMarket.on ===
-                "function"
-            ) {
-
-                TradeSimMarket.on(
-                    event => {
-
-                        if (
-                            event.type ===
-                            "tick"
-                        ) {
-
-                            this.onMarketTick(
-                                event
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
-
-
-            /*
-             * Trading callback
-             */
-
-            if (
-                window.TradeSimTrading
-            ) {
-
-                TradeSimTrading.onTrade =
-                    event => {
-
-                        this.onTrade(
-                            event
-                        );
-
-                    };
-
-            }
-
-        },
-
-
-        /*
-         * Start simulated market
-         */
-
-        startMarket: function () {
-
-            if (
-                window.TradeSimMarket
-            ) {
-
-                TradeSimMarket.start();
-
-            }
-
-        },
-
-
-        /*
-         * Market tick handler
-         */
-
-        onMarketTick: function (
-            event
-        ) {
-
-            this.renderMarketPrices();
-
-            this.renderPortfolio();
-
-            this.updateChartHeader();
-
-        },
-
-
-        /*
-         * Trade executed
-         */
-
-        onTrade: function (
-            event
-        ) {
-
-            this.renderAll();
-
-            if (
-                event &&
-                event.order
-            ) {
-
-                this.showTradeMessage(
-                    event.order
-                );
-
-            }
-
-        },
-
-
-        /*
-         * Navigation
-         */
-
-        showPage: function (
-            page,
-            button
-        ) {
-
-            document
-                .querySelectorAll(
-                    ".page"
-                )
-                .forEach(
-                    p =>
-                        p.classList
-                            .remove(
-                                "active"
-                            )
-                );
-
-
-            const target =
-                document.getElementById(
-                    page
-                );
-
-
-            if (!target) {
-
-                console.warn(
-                    "Page not found:",
-                    page
-                );
-
-                return;
-
-            }
-
-
-            target.classList.add(
-                "active"
-            );
-
-
-            document
-                .querySelectorAll(
-                    ".nav-btn"
-                )
-                .forEach(
-                    b =>
-                        b.classList
-                            .remove(
-                                "active"
-                            )
-                );
-
-
-            if (button) {
-
-                button.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            this.currentPage =
-                page;
-
-
-            if (
-                page === "chartPage" &&
-                this.currentSymbol
-            ) {
-
-                this.openChart(
-                    this.currentSymbol
-                );
-
-            }
-
-
-            this.renderAll();
-
-        },
-
-
-        /*
-         * Open chart
-         */
-
-        openChart: function (
-            symbol
-        ) {
-
-            const asset =
-                TradeSimMarket.getAsset(
-                    symbol
-                );
-
-
-            if (!asset) {
-
-                alert(
-                    "Instrument not found."
-                );
-
-                return;
-
-            }
-
-
-            this.currentSymbol =
-                symbol;
-
-
-            const symbolEl =
-                document.getElementById(
-                    "chartSymbol"
-                );
-
-
-            const nameEl =
-                document.getElementById(
-                    "chartName"
-                );
-
-
-            const metaEl =
-                document.getElementById(
-                    "chartMeta"
-                );
-
-
-            if (symbolEl)
-                symbolEl.textContent =
-                    symbol;
-
-
-            if (nameEl)
-                nameEl.textContent =
-                    asset.name;
-
-
-            if (metaEl)
-                metaEl.textContent =
-                    asset.type +
-                    " • Paper Market";
-
-
-            this.showChartPage();
-
-
-            setTimeout(
-                () => {
-
-                    if (
-                        window.TradeSimChart
-                    ) {
-
-                        TradeSimChart.open(
-                            symbol,
-                            this.currentInterval
-                        );
-
-                    }
-
-                    this.updateChartHeader();
-
-                },
-                80
-            );
-
-        },
-
-
-        /*
-         * Show chart page without
-         * requiring a navigation button
-         */
-
-        showChartPage: function () {
-
-            document
-                .querySelectorAll(
-                    ".page"
-                )
-                .forEach(
-                    p =>
-                        p.classList
-                            .remove(
-                                "active"
-                            )
-                );
-
-
-            const page =
-                document.getElementById(
-                    "chartPage"
-                );
-
-
-            if (page) {
-
-                page.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            document
-                .querySelectorAll(
-                    ".nav-btn"
-                )
-                .forEach(
-                    b =>
-                        b.classList
-                            .remove(
-                                "active"
-                            )
-                );
-
-
-            this.currentPage =
-                "chartPage";
-
-        },
-
-
-        /*
-         * Change chart timeframe
-         */
-
-        setChartInterval: function (
-            interval,
-            button
-        ) {
-
-            this.currentInterval =
-                interval;
-
-
-            document
-                .querySelectorAll(
-                    ".chart-tools button"
-                )
-                .forEach(
-                    b =>
-                        b.classList
-                            .remove(
-                                "active"
-                            )
-                );
-
-
-            if (button) {
-
-                button.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            if (
-                window.TradeSimChart &&
-                this.currentSymbol
-            ) {
-
-                TradeSimChart.setInterval(
-                    interval
-                );
-
-            }
-
-        },
-
-
-        /*
-         * Open BUY / SELL panel
-         */
-
-        openTrade: function (
-            symbol,
-            side
-        ) {
-
-            const asset =
-                TradeSimMarket.getAsset(
-                    symbol
-                );
-
-
-            if (!asset) {
-
-                alert(
-                    "Instrument not found."
-                );
-
-                return;
-
-            }
-
-
-            this.currentSymbol =
-                symbol;
-
-
-            const modal =
-                document.getElementById(
-                    "tradeModal"
-                );
-
-
-            if (!modal) {
-
-                /*
-                 * Compatibility with a UI
-                 * that does not use a modal.
-                 */
-
-                this.quickTrade(
-                    symbol,
-                    side
-                );
-
-                return;
-
-            }
-
-
-            const title =
-                document.getElementById(
-                    "tradeTitle"
-                );
-
-
-            const price =
-                document.getElementById(
-                    "tradePrice"
-                );
-
-
-            const quantity =
-                document.getElementById(
-                    "tradeQty"
-                );
-
-
-            const stop =
-                document.getElementById(
-                    "stopLoss"
-                );
-
-
-            const target =
-                document.getElementById(
-                    "targetPrice"
-                );
-
-
-            const execute =
-                document.getElementById(
-                    "executeTrade"
-                );
-
-
-            if (title) {
-
-                title.textContent =
-                    side +
-                    " " +
-                    symbol;
-
-            }
-
-
-            if (price) {
-
-                price.textContent =
-                    "Current price: " +
-                    this.money(
-                        asset.price
-                    );
-
-            }
-
-
-            if (quantity)
-                quantity.value = "";
-
-
-            if (stop)
-                stop.value = "";
-
-
-            if (target)
-                target.value = "";
-
-
-            if (execute) {
-
-                execute.onclick =
-                    () => {
-
-                        this.executeTrade(
-                            symbol,
-                            side
-                        );
-
-                    };
-
-            }
-
-
-            modal.classList.add(
-                "show"
-            );
-
-        },
-
-
-        /*
-         * Execute BUY / SELL
-         */
-
-        executeTrade: function (
-            symbol,
-            side
-        ) {
-
-            const quantity =
-                Number(
-                    document.getElementById(
-                        "tradeQty"
-                    )?.value
-                );
-
-
-            const stopLoss =
-                Number(
-                    document.getElementById(
-                        "stopLoss"
-                    )?.value
-                );
-
-
-            const target =
-                Number(
-                    document.getElementById(
-                        "targetPrice"
-                    )?.value
-                );
-
-
-            if (
-                !Number.isFinite(
-                    quantity
-                ) ||
-                quantity <= 0
-            ) {
-
-                alert(
-                    "Please enter a valid quantity."
-                );
-
-                return;
-
-            }
-
-
-            const options = {
-
-                stopLoss:
-                    Number.isFinite(
-                        stopLoss
-                    )
-                        ? stopLoss
-                        : null,
-
-                target:
-                    Number.isFinite(
-                        target
-                    )
-                        ? target
-                        : null
-
-            };
-
-
-            let result;
-
-
-            if (side === "BUY") {
-
-                result =
-                    TradeSimTrading.buy(
-                        symbol,
-                        quantity,
-                        options
-                    );
-
-            } else {
-
-                result =
-                    TradeSimTrading.sell(
-                        symbol,
-                        quantity,
-                        options
-                    );
-
-            }
-
-
-            /*
-             * Risk confirmation
-             */
-
-            if (
-                result &&
-                result.requiresConfirmation
-            ) {
-
-                const proceed =
-                    confirm(
-                        "⚠️ RISK WARNING\n\n" +
-                        result.message +
-                        "\n\nOrder value: " +
-                        this.money(
-                            result.orderValue
-                        ) +
-                        "\n\nContinue with this paper trade?"
-                    );
-
-
-                if (!proceed) {
-
-                    return;
-
-                }
-
-
-                options.skipRiskWarning =
-                    true;
-
-
-                if (side === "BUY") {
-
-                    result =
-                        TradeSimTrading.buy(
-                            symbol,
-                            quantity,
-                            options
-                        );
-
-                } else {
-
-                    result =
-                        TradeSimTrading.sell(
-                            symbol,
-                            quantity,
-                            options
-                        );
-
-                }
-
-            }
-
-
-            if (
-                !result ||
-                !result.success
-            ) {
-
-                alert(
-                    "❌ " +
-                    (
-                        result?.message ||
-                        "Trade could not be executed."
-                    )
-                );
-
-                return;
-
-            }
-
-
-            this.closeTrade();
-
-
-            this.renderAll();
-
-
-            /*
-             * Make marker visible immediately.
-             */
-
-            if (
-                window.TradeSimChart &&
-                result.order
-            ) {
-
-                TradeSimChart.addTradeMarker(
-                    result.order
-                );
-
-            }
-
-        },
-
-
-        /*
-         * Quick trade fallback
-         */
-
-        quickTrade: function (
-            symbol,
-            side
-        ) {
-
-            const quantity =
-                Number(
-                    prompt(
-                        side +
-                        " " +
-                        symbol +
-                        "\n\nEnter quantity:"
-                    )
-                );
-
-
-            if (
-                !Number.isFinite(
-                    quantity
-                ) ||
-                quantity <= 0
-            ) {
-
-                return;
-
-            }
-
-
-            const result =
-                side === "BUY"
-
-                    ? TradeSimTrading.buy(
-                        symbol,
-                        quantity
-                    )
-
-                    : TradeSimTrading.sell(
-                        symbol,
-                        quantity
-                    );
-
-
-            if (
-                !result.success
-            ) {
-
-                alert(
-                    "❌ " +
-                    result.message
-                );
-
-                return;
-
-            }
-
-
-            alert(
-                "✅ Paper trade executed\n\n" +
-                side +
-                " " +
-                symbol +
-                "\nQuantity: " +
-                quantity +
-                "\nPrice: " +
-                this.money(
-                    result.order.price
-                )
-            );
-
-        },
-
-
-        /*
-         * Close trade modal
-         */
-
-        closeTrade: function () {
-
-            const modal =
-                document.getElementById(
-                    "tradeModal"
-                );
-
-
-            if (modal) {
-
-                modal.classList.remove(
-                    "show"
-                );
-
-            }
-
-        },
-
-
-        /*
-         * Render everything
-         */
-
-        renderAll: function () {
-
-            this.renderHome();
-
-            this.renderMarkets();
-
-            this.renderPortfolio();
-
-            this.renderOrders();
-
-            this.renderCoach();
-
-            this.renderMarketPrices();
-
-        },
-
-
-        /*
-         * HOME
-         */
-
-        renderHome: function () {
-
-            const trading =
-                TradeSimTrading;
-
-
-            if (!trading) {
-                return;
-            }
-
-
-            const value =
-                trading.getPortfolioValue();
-
-
-            const pnl =
-                trading.getTotalPnl();
-
-
-            this.setText(
-                "portfolioValue",
-                this.money(value)
-            );
-
-
-            this.setText(
-                "cashValue",
-                this.money(
-                    trading.getCash()
-                )
-            );
-
-
-            this.setText(
-                "homePnl",
-                this.money(pnl)
-            );
-
-
-            this.setText(
-                "tradeCount",
-                trading
-                    .getState()
-                    .orders
-                    .length
-            );
-
-
-            const pnlElement =
-                document.getElementById(
-                    "totalPnl"
-                );
-
-
-            if (pnlElement) {
-
-                pnlElement.textContent =
-                    (pnl >= 0 ? "+" : "") +
-                    this.money(pnl) +
-                    " (" +
-                    (
-                        pnl /
-                        1000000 *
-                        100
-                    ).toFixed(2) +
-                    "%)";
-
-
-                pnlElement.className =
-                    pnl >= 0
-                        ? "pnl"
-                        : "loss";
-
-            }
-
-
-            const watchlist =
-                document.getElementById(
-                    "watchlist"
-                );
-
-
-            if (watchlist) {
-
-                watchlist.innerHTML =
-                    Object.values(
-                        TradeSimMarket.assets
-                    )
-                    .slice(0,5)
-                    .map(
-                        a =>
-                            this.assetHTML(a)
-                    )
-                    .join("");
-
-            }
-
-        },
-
-
-        /*
-         * MARKETS
-         */
-
-        renderMarkets: function () {
-
-            const box =
-                document.getElementById(
-                    "marketList"
-                );
-
-
-            if (!box) {
-                return;
-            }
-
-
-            let list =
-                Object.values(
-                    TradeSimMarket.assets
-                );
-
-
-            if (this.searchText) {
-
-                list =
-                    list.filter(
-                        a =>
-
-                            a.symbol
-                                .toUpperCase()
-                                .includes(
-                                    this.searchText
-                                ) ||
-
-                            a.name
-                                .toUpperCase()
-                                .includes(
-                                    this.searchText
-                                )
-                    );
-
-            }
-
-
-            if (
-                this.filter ===
-                "STOCK"
-            ) {
-
-                list =
-                    list.filter(
-                        a =>
-                            a.type ===
-                            "STOCK"
-                    );
-
-            }
-
-
-            if (
-                this.filter ===
-                "CRYPTO"
-            ) {
-
-                list =
-                    list.filter(
-                        a =>
-                            a.type ===
-                            "CRYPTO"
-                    );
-
-            }
-
-
-            if (
-                this.filter ===
-                "GAINERS"
-            ) {
-
-                list =
-                    list
-                    .filter(
-                        a =>
-                            a.change > 0
-                    )
-                    .sort(
-                        (a,b) =>
-                            b.change -
-                            a.change
-                    );
-
-            }
-
-
-            if (
-                this.filter ===
-                "LOSERS"
-            ) {
-
-                list =
-                    list
-                    .filter(
-                        a =>
-                            a.change < 0
-                    )
-                    .sort(
-                        (a,b) =>
-                            a.change -
-                            b.change
-                    );
-
-            }
-
-
-            if (!list.length) {
-
-                box.innerHTML =
-                    '<div class="empty">' +
-                    'No instruments found.' +
-                    '</div>';
-
-                return;
-
-            }
-
-
-            box.innerHTML =
-                list
-                    .map(
-                        a =>
-                            this.assetHTML(a)
-                    )
-                    .join("");
-
-        },
-
-
-        /*
-         * Asset card
-         */
-
-        assetHTML: function (
-            asset
-        ) {
-
-            const positive =
-                asset.change >= 0;
-
-
-            return `
-
-            <div class="asset">
-
-                <div class="asset-top">
-
-                    <div>
-
-                        <div class="symbol">
-                            ${asset.symbol}
-                        </div>
-
-                        <div class="asset-name">
-                            ${asset.name}
-                            •
-                            ${asset.type}
-                        </div>
-
-                    </div>
-
-                    <div class="price">
-
-                        <div class="price-value">
-                            ${this.money(asset.price)}
-                        </div>
-
-                        <div class="change ${
-                            positive
-                                ? "pnl"
-                                : "loss"
-                        }">
-
-                            ${
-                                positive
-                                    ? "+"
-                                    : ""
-                            }${asset.change.toFixed(2)}%
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="trade-buttons">
-
-                    <button
-                        class="chart-btn"
-                        onclick="
-                            TradeSimApp.openChart(
-                                '${asset.symbol}'
-                            )
-                        "
-                    >
-                        📈 Chart
-                    </button>
-
-                    <button
-                        class="buy"
-                        onclick="
-                            TradeSimApp.openTrade(
-                                '${asset.symbol}',
-                                'BUY'
-                            )
-                        "
-                    >
-                        BUY
-                    </button>
-
-                    <button
-                        class="sell"
-                        onclick="
-                            TradeSimApp.openTrade(
-                                '${asset.symbol}',
-                                'SELL'
-                            )
-                        "
-                    >
-                        SELL
-                    </button>
-
-                </div>
-
-            </div>
-
-            `;
-
-        },
-
-
-        /*
-         * Update prices without
-         * rebuilding complete market list
-         */
-
-        renderMarketPrices: function () {
-
-            /*
-             * Full render keeps the UI
-             * synchronized and is acceptable
-             * for the current simulator size.
-             */
-
-            if (
-                this.currentPage ===
-                "markets"
-            ) {
-
-                this.renderMarkets();
-
-            }
-
-        },
-
-
-        /*
-         * PORTFOLIO
-         */
-
-        renderPortfolio: function () {
-
-            const box =
-                document.getElementById(
-                    "positions"
-                );
-
-
-            if (!box) {
-                return;
-            }
-
-
-            const positions =
-                TradeSimTrading
-                    .getPositions();
-
-
-            const symbols =
-                Object.keys(
-                    positions
-                );
-
-
-            if (!symbols.length) {
-
-                box.innerHTML =
-                    '<div class="empty">' +
-                    'No open positions yet.' +
-                    '<br><br>' +
-                    'Go to Markets and place a paper trade.' +
-                    '</div>';
-
-                return;
-
-            }
-
-
-            box.innerHTML =
-                symbols.map(
-                    symbol => {
-
-                        const position =
-                            positions[
-                                symbol
-                            ];
-
-
-                        const asset =
-                            TradeSimMarket
-                                .getAsset(
-                                    symbol
-                                );
-
-
-                        if (!asset) {
-                            return "";
-                        }
-
-
-                        const currentValue =
-                            position.quantity *
-                            asset.price;
-
-
-                        const invested =
-                            position.quantity *
-                            position.averagePrice;
-
-
-                        const pnl =
-                            currentValue -
-                            invested;
-
-
-                        return `
-
-                        <div class="card">
-
-                            <div class="row">
-
-                                <div>
-
-                                    <div class="symbol">
-                                        ${symbol}
-                                    </div>
-
-                                    <div class="asset-name">
-                                        ${asset.name}
-                                    </div>
-
-                                </div>
-
-                                <div class="${
-                                    pnl >= 0
-                                        ? "pnl"
-                                        : "loss"
-                                }">
-
-                                    ${this.money(pnl)}
-
-                                </div>
-
-                            </div>
-
-                            <br>
-
-                            <div class="small">
-
-                                Quantity:
-                                ${position.quantity}
-                                <br>
-
-                                Average:
-                                ${this.money(
-                                    position.averagePrice
-                                )}
-                                <br>
-
-                                Current:
-                                ${this.money(
-                                    asset.price
-                                )}
-                                <br>
-
-                                Market value:
-                                ${this.money(
-                                    currentValue
-                                )}
-
-                            </div>
-
-                            <br>
-
-                            <div class="trade-buttons">
-
-                                <button
-                                    class="sell"
-                                    onclick="
-                                        TradeSimApp.openTrade(
-                                            '${symbol}',
-                                            'SELL'
-                                        )
-                                    "
-                                >
-                                    SELL
-                                </button>
-
-                                <button
-                                    class="chart-btn"
-                                    onclick="
-                                        TradeSimApp.openChart(
-                                            '${symbol}'
-                                        )
-                                    "
-                                >
-                                    📈 CHART
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        `;
-
-                    }
-                ).join("");
-
-        },
-
-
-        /*
-         * ORDERS
-         */
-
-        renderOrders: function () {
-
-            const box =
-                document.getElementById(
-                    "orderHistory"
-                );
-
-
-            if (!box) {
-                return;
-            }
-
-
-            const orders =
-                TradeSimTrading
-                    .getState()
-                    .orders;
-
-
-            if (!orders.length) {
-
-                box.innerHTML =
-                    '<div class="empty">' +
-                    'No orders yet.' +
-                    '</div>';
-
-                return;
-
-            }
-
-
-            box.innerHTML =
-                orders.map(
-                    order => `
-
-                    <div class="order">
-
-                        <div class="row">
-
-                            <div>
-
-                                <b>
-                                    ${order.side}
-                                    ${order.symbol}
-                                </b>
-
-                                <div class="small">
-                                    ${new Date(
-                                        order.date
-                                    ).toLocaleString()}
-                                </div>
-
-                            </div>
-
-                            <div class="${
-                                order.side ===
-                                "BUY"
-                                    ? "pnl"
-                                    : "loss"
-                            }">
-
-                                ${order.side}
-
-                            </div>
-
-                        </div>
-
-                        <br>
-
-                        <div class="small">
-
-                            Quantity:
-                            ${order.quantity}
-                            <br>
-
-                            Execution price:
-                            ${this.money(
-                                order.price
-                            )}
-                            <br>
-
-                            Order value:
-                            ${this.money(
-                                order.value
-                            )}
-
-                            ${
-                                order.stopLoss !== null
-                                    ? "<br>Stop-loss: " +
-                                      this.money(
-                                          order.stopLoss
-                                      )
-                                    : ""
-                            }
-
-                            ${
-                                order.target !== null
-                                    ? "<br>Target: " +
-                                      this.money(
-                                          order.target
-                                      )
-                                    : ""
-                            }
-
-                        </div>
-
-                    </div>
-
-                    `
-                ).join("");
-
-        },
-
-
-        /*
-         * COACH
-         */
-
-        renderCoach: function () {
-
-            const box =
-                document.getElementById(
-                    "coachMessage"
-                );
-
-
-            if (!box) {
-                return;
-            }
-
-
-            const trading =
-                TradeSimTrading;
-
-
-            const orders =
-                trading
-                    .getState()
-                    .orders;
-
-
-            const positions =
-                trading
-                    .getPositions();
-
-
-            let message;
-
-
-            if (!orders.length) {
-
-                message =
-                    "👋 No trades yet. " +
-                    "Before entering your first position, " +
-                    "decide your risk and exit plan.";
-
-            } else {
-
-                const value =
-                    trading
-                        .getPortfolioValue();
-
-
-                const exposure =
-                    Object.keys(
-                        positions
-                    ).reduce(
-                        (total,symbol) => {
-
-                            const p =
-                                positions[
-                                    symbol
-                                ];
-
-
-                            const price =
-                                TradeSimMarket
-                                    .getPrice(
-                                        symbol
-                                    );
-
-
-                            return total +
-                                p.quantity *
-                                price;
-
-                        },
-                        0
-                    );
-
-
-                const percentage =
-                    exposure /
-                    1000000 *
-                    100;
-
-
-                if (
-                    percentage >
-                    50
-                ) {
-
-                    message =
-                        "⚠️ High exposure detected. " +
-                        "More than half of your starting capital " +
-                        "is currently exposed to open positions.";
-
-                } else if (
-                    value <
-                    1000000
-                ) {
-
-                    message =
-                        "📉 Your simulated account is below " +
-                        "the starting balance. Review losing trades " +
-                        "and position sizing.";
-
-                } else {
-
-                    message =
-                        "📊 Keep focusing on consistency, " +
-                        "position sizing and predefined exits.";
-
-                }
-
-            }
-
-
-            box.textContent =
-                message;
-
-        },
-
-
-        /*
-         * Chart header
-         */
-
-        updateChartHeader:
-            function () {
-
-                if (!this.currentSymbol) {
-                    return;
-                }
-
-
-                const asset =
-                    TradeSimMarket
-                        .getAsset(
-                            this.currentSymbol
-                        );
-
-
-                if (!asset) {
-                    return;
-                }
-
-
-                this.setText(
-                    "chartPrice",
-                    this.money(
-                        asset.price
-                    )
-                );
-
-
-                const change =
-                    document.getElementById(
-                        "chartChange"
-                    );
-
-
-                if (change) {
-
-                    change.textContent =
-                        (
-                            asset.change >=
-                            0
-                                ? "+"
-                                : ""
-                        ) +
-                        asset.change.toFixed(
-                            2
-                        ) +
-                        "%";
-
-
-                    change.className =
-                        asset.change >= 0
-                            ? "pnl"
-                            : "loss";
-
-                }
-
-            },
-
-
-        /*
-         * Show trade confirmation
-         */
-
-        showTradeMessage:
-            function (order) {
-
-                console.log(
-                    "TradeSim trade executed:",
-                    order
-                );
-
-            },
-
-
-        /*
-         * Utility
-         */
-
-        setText: function (
-            id,
-            value
-        ) {
-
-            const el =
-                document.getElementById(
-                    id
-                );
-
-
-            if (el) {
-
-                el.textContent =
-                    value;
-
-            }
-
-        },
-
-
-        money: function (
-            number
-        ) {
-
-            return "₹" +
-                Number(
-                    number
-                ).toLocaleString(
-                    "en-IN",
-                    {
-                        maximumFractionDigits:
-                            2
-                    }
-                );
-
+  "use strict";
+
+  const STARTING_CASH = 1000000;
+  const App = {
+    currentPage: "home",
+    currentSymbol: "RELIANCE",
+    currentInterval: "1m",
+    filter: "ALL",
+    searchText: "",
+    initialized: false,
+
+    assets: [
+      ["RELIANCE", "Reliance Industries", "STOCK", 1450.50, 1.24],
+      ["TCS", "Tata Consultancy Services", "STOCK", 3245.20, 0.82],
+      ["INFY", "Infosys", "STOCK", 1542.30, -0.45],
+      ["HDFCBANK", "HDFC Bank", "STOCK", 1710.40, 0.64],
+      ["ICICIBANK", "ICICI Bank", "STOCK", 1315.80, 1.05],
+      ["SBIN", "State Bank of India", "STOCK", 825.40, -0.32],
+      ["ITC", "ITC Limited", "STOCK", 418.75, 0.38],
+      ["BHARTIARTL", "Bharti Airtel", "STOCK", 1865.10, 1.62],
+      ["BTC", "Bitcoin", "CRYPTO", 10450000, 1.15],
+      ["ETH", "Ethereum", "CRYPTO", 395000, 0.72],
+      ["SOL", "Solana", "CRYPTO", 18500, -1.20],
+      ["BNB", "BNB", "CRYPTO", 87000, 0.55]
+    ],
+
+    init() {
+      if (this.initialized) return;
+      this.initialized = true;
+      this.registerAssets();
+      this.installStyle();
+      this.patchChartControls();
+      this.bindEvents();
+      this.renderAll();
+      this.startMarket();
+      setTimeout(() => this.openChart(this.currentSymbol), 120);
+    },
+
+    registerAssets() {
+      if (!window.TradeSimMarket) return;
+      TradeSimMarket.registerAssets(this.assets.map(a => ({
+        symbol: a[0], name: a[1], type: a[2], price: a[3], change: a[4]
+      })));
+    },
+
+    startMarket() {
+      if (window.TradeSimMarket && !TradeSimMarket.running) TradeSimMarket.start();
+    },
+
+    installStyle() {
+      if (document.getElementById("tradesim-tv-style")) return;
+      const s = document.createElement("style");
+      s.id = "tradesim-tv-style";
+      s.textContent = `
+        :root{--ts-bg:#0b0e11;--ts-panel:#13171c;--ts-panel2:#1a1f26;--ts-border:#2a3038;--ts-text:#d9dee7;--ts-muted:#8c96a5;--ts-blue:#2962ff;--ts-green:#26a69a;--ts-red:#ef5350}
+        html,body{background:var(--ts-bg)!important;color:var(--ts-text)!important;font-family:Inter,Arial,sans-serif!important}
+        .app{max-width:1100px;background:var(--ts-bg);padding-bottom:70px}
+        .header{background:#0b0e11!important;border-color:var(--ts-border)!important;padding:9px 14px!important}
+        .brand h1{font-size:20px!important}.brand span{color:#fff!important}.status{font-size:9px!important;color:#26a69a!important}
+        .content{padding:10px!important}.title{font-size:20px!important;margin-bottom:10px!important}
+        .page{background:var(--ts-bg)}
+        .asset,.card,.order,.chart-header,.coach{background:var(--ts-panel)!important;border-color:var(--ts-border)!important;border-radius:6px!important}
+        .balance-card{border-radius:7px!important;background:linear-gradient(135deg,#151a21,#10231f)!important}
+        .filters,.chart-toolbar{scrollbar-width:none}.filters::-webkit-scrollbar,.chart-toolbar::-webkit-scrollbar{display:none}
+        .filter,.chart-toolbar button{background:var(--ts-panel)!important;border-color:var(--ts-border)!important;color:var(--ts-muted)!important;border-radius:4px!important}
+        .filter.active,.chart-toolbar button.active{background:var(--ts-blue)!important;color:#fff!important;border-color:var(--ts-blue)!important}
+        .chart-wrap{border:1px solid var(--ts-border)!important;border-radius:4px!important;background:#0b0e11!important;margin:0!important}
+        #chart{height:520px!important;min-height:420px!important}
+        .chart-header{margin-bottom:6px!important;padding:9px 12px!important}
+        .chart-symbol{font-size:18px!important}.chart-name{color:var(--ts-muted)!important}
+        .chart-actions{position:sticky;bottom:8px;z-index:30;margin:8px 0!important}
+        .chart-actions button{border-radius:4px!important;padding:12px!important}
+        .buy{background:var(--ts-green)!important}.sell{background:var(--ts-red)!important}.chart-btn,.primary{background:var(--ts-blue)!important}
+        .trade-buttons{gap:5px}.trade-buttons button{border-radius:4px!important}
+        .bottom-nav{max-width:1100px;height:58px;background:#0b0e11!important;border-color:var(--ts-border)!important}
+        .nav-btn{font-size:9px!important}.nav-icon{font-size:17px!important}
+        #ts-tv-symbolbar{display:flex;align-items:center;gap:8px;overflow-x:auto;white-space:nowrap;background:#0b0e11;border-bottom:1px solid var(--ts-border);padding:7px 10px;margin:-10px -10px 8px}
+        #ts-tv-symbolbar button{background:transparent;border:0;color:var(--ts-muted);padding:7px 9px;border-radius:4px;font-weight:600}
+        #ts-tv-symbolbar button.active{background:#1d2530;color:#fff}
+        #ts-chart-tools-extra{display:flex;gap:5px;margin:0 0 6px;overflow:auto}
+        #ts-chart-tools-extra button{background:var(--ts-panel);color:var(--ts-muted);border:1px solid var(--ts-border);border-radius:4px;padding:6px 9px;white-space:nowrap}
+        #ts-account-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:7px 0}
+        #ts-account-strip>div{background:var(--ts-panel);border:1px solid var(--ts-border);padding:8px;border-radius:4px;min-width:0}
+        #ts-account-strip b{display:block;font-size:12px}.ts-k{font-size:9px;color:var(--ts-muted);display:block;margin-bottom:3px}
+        #ts-position-bar{margin-top:8px;padding:9px;background:#11161c;border:1px solid var(--ts-border);border-radius:4px;font-size:12px}
+        @media(max-width:650px){#ts-account-strip{grid-template-columns:1fr 1fr}#chart{height:430px!important;min-height:360px!important}.app{max-width:100%}}
+      `;
+      document.head.appendChild(s);
+    },
+
+    patchChartControls() {
+      if (!window.TradeSimChart) return;
+      TradeSimChart.activateTimeframe = function (interval) {
+        document.querySelectorAll(".chart-toolbar button").forEach(b => {
+          b.classList.toggle("active", b.dataset.interval === interval || b.textContent.trim() === interval);
+        });
+      };
+      const toolbar = document.querySelector(".chart-toolbar");
+      if (!toolbar || document.getElementById("ts-chart-tools-extra")) return;
+      toolbar.querySelectorAll("button").forEach((b, i) => {
+        const labels = ["1m","5m","15m","30m","1H","4H","1D","1W"];
+        b.dataset.interval = labels[i] || b.textContent.trim();
+      });
+      const extra = document.createElement("div");
+      extra.id = "ts-chart-tools-extra";
+      extra.innerHTML = '<button id="tsFit">⛶ Fit</button><button id="tsLive">◉ Live</button><button id="tsClear">↺ Reset</button>';
+      toolbar.parentNode.insertBefore(extra, toolbar.nextSibling);
+      document.getElementById("tsFit").onclick = () => TradeSimChart.chart && TradeSimChart.chart.timeScale().fitContent();
+      document.getElementById("tsLive").onclick = () => TradeSimChart.chart && TradeSimChart.chart.timeScale().scrollToRealTime();
+      document.getElementById("tsClear").onclick = () => { if(TradeSimChart.chart) TradeSimChart.chart.timeScale().fitContent(); };
+    },
+
+    bindEvents() {
+      const search = document.getElementById("searchBox");
+      if (search) search.addEventListener("input", () => { this.searchText = search.value.trim().toUpperCase(); this.renderMarkets(); });
+      if (window.TradeSimMarket) TradeSimMarket.on(e => {
+        if (e.type === "tick") {
+          this.renderMarketPrices();
+          this.renderPortfolio();
+          this.updateChartHeader();
+          if (window.TradeSimChart) TradeSimChart.update(e);
         }
+      });
+      if (window.TradeSimTrading) TradeSimTrading.onTrade = e => { this.renderAll(); if (e.order && window.TradeSimChart) TradeSimChart.addTradeMarker(e.order); };
+    },
 
-    };
+    showPage(page, button) {
+      document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === page));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      if (button) button.classList.add("active");
+      this.currentPage = page;
+      if (page === "chartPage") setTimeout(() => this.openChart(this.currentSymbol), 50);
+      this.renderAll();
+    },
 
+    openChart(symbol) {
+      const asset = TradeSimMarket && TradeSimMarket.getAsset(symbol);
+      if (!asset) return;
+      this.currentSymbol = symbol;
+      const a = ["chartSymbol","chartName","chartMeta"];
+      this.setText(a[0], symbol); this.setText(a[1], asset.name); this.setText(a[2], `${asset.type} • PAPER TRADING`);
+      this.showChartPage();
+      setTimeout(() => {
+        if (window.TradeSimChart) {
+          TradeSimChart.open(symbol, this.currentInterval);
+          TradeSimChart.activateTimeframe(this.currentInterval);
+          this.addChartExtras();
+        }
+        this.updateChartHeader();
+      }, 60);
+    },
 
-    /*
-     * Make functions available
-     * globally for HTML buttons.
-     */
+    showChartPage() {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      const page = document.getElementById("chartPage"); if (page) page.classList.add("active");
+      this.currentPage = "chartPage";
+    },
 
-    window.showPage =
-        function (
-            page,
-            button
-        ) {
+    setChartInterval(interval, button) {
+      if (!TradeSimMarket.intervals[interval]) return;
+      this.currentInterval = interval;
+      document.querySelectorAll(".chart-toolbar button").forEach(b => b.classList.remove("active"));
+      if (button) button.classList.add("active");
+      if (window.TradeSimChart) TradeSimChart.setInterval(interval);
+    },
 
-            TradeSimApp.showPage(
-                page,
-                button
-            );
+    addChartExtras() {
+      if (document.getElementById("ts-tv-symbolbar")) return;
+      const header = document.querySelector("#chartPage .chart-header");
+      if (!header) return;
+      const bar = document.createElement("div"); bar.id = "ts-tv-symbolbar";
+      const symbols = Object.values(TradeSimMarket.assets).slice(0,8);
+      symbols.forEach(a => { const b=document.createElement("button"); b.textContent=a.symbol; b.className=a.symbol===this.currentSymbol?"active":""; b.onclick=()=>this.openChart(a.symbol); bar.appendChild(b); });
+      header.parentNode.insertBefore(bar, header);
+      this.addAccountStrip();
+    },
 
-        };
+    addAccountStrip() {
+      if (document.getElementById("ts-account-strip")) return;
+      const chart = document.getElementById("chart"); if (!chart) return;
+      const strip = document.createElement("div"); strip.id="ts-account-strip";
+      strip.innerHTML='<div><span class="ts-k">EQUITY</span><b id="tsEq">₹0</b></div><div><span class="ts-k">CASH</span><b id="tsCash">₹0</b></div><div><span class="ts-k">OPEN P/L</span><b id="tsOpen">₹0</b></div><div><span class="ts-k">POSITIONS</span><b id="tsPos">0</b></div>';
+      chart.parentNode.insertBefore(strip, chart);
+    },
 
+    openTrade(symbol, side) {
+      const asset = TradeSimMarket.getAsset(symbol); if (!asset) return;
+      this.currentSymbol = symbol;
+      const modal=document.getElementById("tradeModal");
+      if (!modal) return this.quickTrade(symbol,side);
+      this.setText("tradeTitle", `${side} ${symbol}`);
+      this.setText("tradePrice", `Market price: ${this.money(asset.price)}`);
+      const q=document.getElementById("tradeQty"), sl=document.getElementById("stopLoss"), tp=document.getElementById("targetPrice");
+      if(q) q.value=""; if(sl) sl.value=""; if(tp) tp.value="";
+      const exec=document.getElementById("executeTrade"); if(exec) exec.onclick=()=>this.executeTrade(symbol,side);
+      modal.classList.add("show");
+    },
 
-    window.openChart =
-        function (
-            symbol
-        ) {
+    executeTrade(symbol,side) {
+      const q=Number(document.getElementById("tradeQty")?.value), sl=Number(document.getElementById("stopLoss")?.value), tp=Number(document.getElementById("targetPrice")?.value);
+      if(!Number.isFinite(q)||q<=0){alert("Enter a valid quantity.");return;}
+      const options={stopLoss:Number.isFinite(sl)&&sl>0?sl:null,target:Number.isFinite(tp)&&tp>0?tp:null};
+      let result=side==="BUY"?TradeSimTrading.buy(symbol,q,options):TradeSimTrading.sell(symbol,q,options);
+      if(result?.requiresConfirmation){if(!confirm("Risk warning:\n\n"+result.message+"\n\nOrder value: "+this.money(result.orderValue)+"\n\nContinue?"))return;options.skipRiskWarning=true;result=side==="BUY"?TradeSimTrading.buy(symbol,q,options):TradeSimTrading.sell(symbol,q,options);}
+      if(!result?.success){alert(result?.message||"Order rejected.");return;}
+      this.closeTrade(); this.renderAll(); if(window.TradeSimChart&&result.order)TradeSimChart.addTradeMarker(result.order);
+    },
 
-            TradeSimApp.openChart(
-                symbol
-            );
+    quickTrade(symbol,side){
+      const q=Number(prompt(`${side} ${symbol}\nEnter quantity:`)); if(!Number.isFinite(q)||q<=0)return;
+      const r=side==="BUY"?TradeSimTrading.buy(symbol,q):TradeSimTrading.sell(symbol,q); if(!r.success)alert(r.message);
+    },
 
-        };
+    closeTrade(){document.getElementById("tradeModal")?.classList.remove("show");},
 
+    setFilter(filter,button){this.filter=filter;document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));if(button)button.classList.add("active");this.renderMarkets();},
 
-    window.openTrade =
-        function (
-            symbol,
-            side
-        ) {
+    renderAll(){this.renderHome();this.renderMarkets();this.renderPortfolio();this.renderOrders();this.renderCoach();this.renderMarketPrices();this.updateAccountStrip();},
 
-            TradeSimApp.openTrade(
-                symbol,
-                side
-            );
+    renderHome(){
+      if(!window.TradeSimTrading)return;
+      const t=TradeSimTrading, value=t.getPortfolioValue(), pnl=t.getTotalPnl();
+      this.setText("portfolioValue",this.money(value));this.setText("cashValue",this.money(t.getCash()));this.setText("homePnl",this.money(pnl));this.setText("tradeCount",t.getState().orders.length);
+      const pct=(pnl/STARTING_CASH*100).toFixed(2), el=document.getElementById("totalPnl");if(el){el.textContent=(pnl>=0?"+":"")+this.money(pnl)+` (${pct}%)`;el.className=pnl>=0?"pnl":"loss";}
+      const wl=document.getElementById("watchlist");if(wl)wl.innerHTML=Object.values(TradeSimMarket.assets).slice(0,6).map(a=>this.assetHTML(a)).join("");
+    },
 
-        };
+    renderMarkets(){
+      const box=document.getElementById("marketList");if(!box||!window.TradeSimMarket)return;
+      let list=Object.values(TradeSimMarket.assets).filter(a=>!this.searchText||a.symbol.includes(this.searchText)||a.name.toUpperCase().includes(this.searchText));
+      if(this.filter==="STOCK")list=list.filter(a=>a.type==="STOCK");if(this.filter==="CRYPTO")list=list.filter(a=>a.type==="CRYPTO");
+      if(this.filter==="GAINERS")list=list.filter(a=>a.change>0).sort((a,b)=>b.change-a.change);if(this.filter==="LOSERS")list=list.filter(a=>a.change<0).sort((a,b)=>a.change-b.change);
+      box.innerHTML=list.length?list.map(a=>this.assetHTML(a)).join(""):"<div class=\"empty\">No instruments found.</div>";
+    },
 
+    assetHTML(a){
+      const up=a.change>=0;return `<div class="asset"><div class="asset-top"><div><div class="symbol">${a.symbol}</div><div class="asset-name">${a.name} • ${a.type}</div></div><div class="price"><div class="price-value">${this.money(a.price)}</div><div class="change ${up?"pnl":"loss"}">${up?"+":""}${a.change.toFixed(2)}%</div></div></div><div class="trade-buttons"><button class="chart-btn" onclick="TradeSimApp.openChart('${a.symbol}')">CHART</button><button class="buy" onclick="TradeSimApp.openTrade('${a.symbol}','BUY')">BUY</button><button class="sell" onclick="TradeSimApp.openTrade('${a.symbol}','SELL')">SELL</button></div></div>`;
+    },
 
-    window.closeTrade =
-        function () {
+    renderPortfolio(){
+      const box=document.getElementById("positions");if(!box||!window.TradeSimTrading)return;const pos=TradeSimTrading.getPositions();const keys=Object.keys(pos);
+      if(!keys.length){box.innerHTML='<div class="empty">No open positions.<br><br>Open a paper trade from Markets.</div>';return;}
+      box.innerHTML=keys.map(s=>{const p=pos[s],a=TradeSimMarket.getAsset(s),v=p.quantity*a.price,inv=p.quantity*p.averagePrice,pnl=v-inv;return `<div class="card"><div class="row"><div><div class="symbol">${s}</div><div class="asset-name">${a.name}</div></div><b class="${pnl>=0?"pnl":"loss"}">${this.money(pnl)}</b></div><div class="small">Qty: ${p.quantity}<br>Avg: ${this.money(p.averagePrice)}<br>Last: ${this.money(a.price)}<br>Value: ${this.money(v)}</div><div class="trade-buttons"><button class="sell" onclick="TradeSimApp.openTrade('${s}','SELL')">SELL</button><button class="chart-btn" onclick="TradeSimApp.openChart('${s}')">CHART</button></div></div>`;}).join("");
+    },
 
-            TradeSimApp.closeTrade();
+    renderOrders(){
+      const box=document.getElementById("orderHistory");if(!box||!window.TradeSimTrading)return;const orders=TradeSimTrading.getState().orders;if(!orders.length){box.innerHTML='<div class="empty">No orders yet.</div>';return;}
+      box.innerHTML=orders.map(o=>`<div class="order"><div class="row"><b>${o.side} ${o.symbol}</b><span class="${o.side==="BUY"?"pnl":"loss"}">${o.status||"FILLED"}</span></div><div class="small">${new Date(o.date).toLocaleString()}<br>Qty: ${o.quantity} • Price: ${this.money(o.price)}<br>Value: ${this.money(o.value)}${o.stopLoss!=null?"<br>SL: "+this.money(o.stopLoss):""}${o.target!=null?"<br>Target: "+this.money(o.target):""}</div></div>`).join("");
+    },
 
-        };
+    renderCoach(){const box=document.getElementById("coachMessage");if(!box||!window.TradeSimTrading)return;const t=TradeSimTrading,orders=t.getState().orders,pos=t.getPositions();if(!orders.length){box.textContent="No trades yet. Build a plan, define risk and use the paper account to test it.";return;}const exposure=Object.keys(pos).reduce((x,s)=>x+pos[s].quantity*TradeSimMarket.getPrice(s),0);box.textContent=exposure>STARTING_CASH*.5?"High exposure: more than 50% of starting capital is deployed.":t.getTotalPnl()<0?"The simulated account is below start. Review sizing and exits.":"Good discipline: keep position sizing and predefined exits consistent.";},
 
+    renderMarketPrices(){if(this.currentPage==="markets")this.renderMarkets();},
 
-    window.setChartInterval =
-        function (
-            interval,
-            button
-        ) {
+    updateChartHeader(){const a=TradeSimMarket&&TradeSimMarket.getAsset(this.currentSymbol);if(!a)return;this.setText("chartPrice",this.money(a.price));const c=document.getElementById("chartChange");if(c){c.textContent=(a.change>=0?"+":"")+a.change.toFixed(2)+"%";c.className=a.change>=0?"pnl":"loss";}this.updateAccountStrip();},
 
-            TradeSimApp.setChartInterval(
-                interval,
-                button
-            );
+    updateAccountStrip(){const s=document.getElementById("ts-account-strip");if(!s||!window.TradeSimTrading)return;const t=TradeSimTrading,pos=t.getPositions();let open=0;Object.keys(pos).forEach(k=>open+=(pos[k].quantity*TradeSimMarket.getPrice(k))-(pos[k].quantity*pos[k].averagePrice));this.setText("tsEq",this.money(t.getPortfolioValue()));this.setText("tsCash",this.money(t.getCash()));this.setText("tsOpen",this.money(open));this.setText("tsPos",Object.keys(pos).length);},
 
-        };
+    setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;},
+    money(n){return "₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});}
+  };
 
+  window.TradeSimApp=App;
+  window.showPage=(p,b)=>App.showPage(p,b);
+  window.openChart=s=>App.openChart(s);
+  window.openTrade=(s,side)=>App.openTrade(s,side);
+  window.closeTrade=()=>App.closeTrade();
+  window.setChartInterval=(i,b)=>App.setChartInterval(i,b);
 
-    /*
-     * Start after DOM is ready.
-     */
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                TradeSimApp.init();
-
-            }
-        );
-
-    } else {
-
-        TradeSimApp.init();
-
-    }
-
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>App.init());else App.init();
 })();
